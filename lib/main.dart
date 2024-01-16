@@ -30,18 +30,18 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: Text('Rick and Morty Characters'),
         ),
-        body: CharacterGrid(),
+        body: CharacterList(),
       ),
     );
   }
 }
 
-class CharacterGrid extends StatefulWidget {
+class CharacterList extends StatefulWidget {
   @override
-  _CharacterGridState createState() => _CharacterGridState();
+  _CharacterListState createState() => _CharacterListState();
 }
 
-class _CharacterGridState extends State<CharacterGrid> {
+class _CharacterListState extends State<CharacterList> {
   late List<Character> characters;
 
   @override
@@ -72,17 +72,44 @@ class _CharacterGridState extends State<CharacterGrid> {
   Widget build(BuildContext context) {
     return characters == null
         ? Center(child: CircularProgressIndicator())
-        : GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 8.0,
-              mainAxisSpacing: 8.0,
-            ),
-            itemCount: characters.length,
-            itemBuilder: (context, index) {
-              return CharacterCard(character: characters[index]);
-            },
-          );
+        : _buildCharacterList();
+  }
+
+  Widget _buildCharacterList() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth > 600) {
+          // Use GridView for web
+          return _buildGridView();
+        } else {
+          // Use ListView for mobile
+          return _buildListView();
+        }
+      },
+    );
+  }
+
+  Widget _buildGridView() {
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 8.0,
+        mainAxisSpacing: 8.0,
+      ),
+      itemCount: characters.length,
+      itemBuilder: (context, index) {
+        return CharacterCard(character: characters[index]);
+      },
+    );
+  }
+
+  Widget _buildListView() {
+    return ListView.builder(
+      itemCount: characters.length,
+      itemBuilder: (context, index) {
+        return CharacterCard(character: characters[index]);
+      },
+    );
   }
 }
 
@@ -99,8 +126,8 @@ class CharacterCard extends StatelessWidget {
         children: [
           Image.network(
             character.image,
-            height: 50,
-            width: 50,
+            height: 100,
+            width: 100,
             fit: BoxFit.cover,
           ),
           SizedBox(height: 8),
